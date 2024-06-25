@@ -87,6 +87,65 @@ interface LookupInvoiceResponse {
   paid: boolean;
 }
 
+interface Currency {
+  code: string;
+  name: string;
+  symbol: string;
+  multiplier: number;
+  min: number;
+  max: number;
+  decimals: number;
+}
+
+interface LookupUserArgs {
+  lud16: string;
+}
+
+interface LookupUserResponse {
+  lud16: string;
+  currencies: Currency[];
+}
+
+interface FetchQuoteArgs {
+  receivingAddress: string;
+  sendingCurrencyCode: string;
+  receivingCurrencyCode: string;
+  lockedCurrencySide: "sending" | "receiving";
+  lockedCurrencyAmount: number;
+}
+
+interface FetchQuoteResponse {
+  receivingAddress: string;
+  paymentHash: string;
+  sendingCurrencyCode: string;
+  receivingCurrencyCode: string;
+  lockedCurrencySide: "sending" | "receiving";
+  receivingCurrencyAmount: number;
+  sendingCurrencyAmount: number;
+  multiplier: number; // receiving unit per sending unit
+  fee: number; // in sending currency
+  expiresAt: number;
+}
+
+interface ExecuteQuoteArgs {
+  paymentHash: string;
+}
+
+interface ExecuteQuoteResponse {
+  preimage: string;
+}
+
+interface PayToAddressArgs {
+  receivingLud16: string,
+  sendingCurrencyCode: string, 
+  sendingCurrencyAmount: number,
+  receivingCurrencyCode?: string|undefined,
+}
+
+interface PayToAddressResponse {
+  preimage: string;
+}
+
 type WebLNRequestListPeersResponse = {
   peers: {
     pub_key: string;
@@ -292,6 +351,10 @@ interface WebLNProvider {
   keysend?(args: KeysendArgs): Promise<SendPaymentResponse>;
   lnurl?(lnurl: string): Promise<LNURLResponse>;
   lookupInvoice?(args: LookupInvoiceArgs): Promise<LookupInvoiceResponse>;
+  lookupUser?(args: string | LookupUserArgs): Promise<LookupUserResponse>;
+  fetchQuote?(args: FetchQuoteArgs): Promise<FetchQuoteResponse>;
+  executeQuote?(args: ExecuteQuoteArgs): Promise<ExecuteQuoteResponse>;
+  payToAddress?(args: PayToAddressArgs): Promise<PayToAddressResponse>;
   request?: (method: WebLNRequestMethod, args?: unknown) => Promise<unknown>;
   signMessage?(message: string): Promise<SignMessageResponse>;
   verifyMessage?(signature: string, message: string): Promise<void>;
@@ -318,6 +381,14 @@ export {
   GetBalanceResponse,
   LookupInvoiceArgs,
   LookupInvoiceResponse,
+  LookupUserArgs,
+  LookupUserResponse,
+  FetchQuoteArgs,
+  FetchQuoteResponse,
+  ExecuteQuoteArgs,
+  ExecuteQuoteResponse,
+  PayToAddressArgs,
+  PayToAddressResponse,
 
   // webln.request methods
   WebLNRequestMethod,
